@@ -21,8 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function handleVideo(stream) {
     console.log('load webcam')
-    track = stream.getTracks()[0]
-    video.srcObject = track;
+    video.srcObject = stream;
 }
 
 let canvases = {};
