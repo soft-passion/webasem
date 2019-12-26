@@ -7,13 +7,21 @@ let objType = 'faceDetect';
 
 
 // check for getUserMedia support
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+// navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
 
-if (navigator.getUserMedia) {
+// if (navigator.getUserMedia) {
     // get webcam feed if available 
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user"} }, handleVideo, () => console.log('error with webcam'));
+    // navigator.getUserMedia({ video: true }, handleVideo, () => console.log('error with webcam'));
     // setTimeout(detect, 8000)
-}
+    var constraints = { video: { facingMode: "user" }, audio: false };
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+        track = stream.getTracks()[0];
+        video.srcObject = stream;
+    })
+    .catch(function(error) {
+        console.error("Oops. Something is broken.", error);
+    });
+// }
 
 document.addEventListener('DOMContentLoaded', function () {
     console.log('dom loaded')
