@@ -11,7 +11,7 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
 
 if (navigator.getUserMedia) {
     // get webcam feed if available 
-    navigator.getUserMedia({ video: true }, handleVideo, () => console.log('error with webcam'));
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user"} }, handleVideo, () => console.log('error with webcam'));
     // setTimeout(detect, 8000)
 }
 
@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function handleVideo(stream) {
     console.log('load webcam')
-    video.srcObject = stream;
+    track = stream.getTracks()[0]
+    video.srcObject = track;
 }
 
 let canvases = {};
@@ -55,15 +56,15 @@ canvases.wasm.context = canvases.wasm.canvas.getContext('2d');
 canvases.wasm.canvas.width = canvases.width;
 canvases.wasm.canvas.height = canvases.height;
 
-canvases.asm.canvas = document.getElementById('asm');
-canvases.asm.context = canvases.asm.canvas.getContext('2d');
-canvases.asm.canvas.width = canvases.width;
-canvases.asm.canvas.height = canvases.height;
+// canvases.asm.canvas = document.getElementById('asm');
+// canvases.asm.context = canvases.asm.canvas.getContext('2d');
+// canvases.asm.canvas.width = canvases.width;
+// canvases.asm.canvas.height = canvases.height;
 
-canvases.js.canvas = document.getElementById('js');
-canvases.js.context = canvases.js.canvas.getContext('2d');
-canvases.js.canvas.width = canvases.width;
-canvases.js.canvas.height = canvases.height;
+// canvases.js.canvas = document.getElementById('js');
+// canvases.js.context = canvases.js.canvas.getContext('2d');
+// canvases.js.canvas.width = canvases.width;
+// canvases.js.canvas.height = canvases.height;
 
 canvases.dummy = {};
 canvases.dummy.canvas = document.getElementById('dummy');
@@ -71,18 +72,18 @@ canvases.dummy.context = canvases.dummy.canvas.getContext('2d');
 canvases.dummy.canvas.width = canvases.width;
 canvases.dummy.canvas.height = canvases.height;
 
-canvases.chart = {};
-canvases.chart.canvas = document.getElementById('graph');
-canvases.chart.context = canvases.chart.canvas.getContext('2d');
-canvases.chart.canvas.width = canvases.width;
-canvases.chart.canvas.height = canvases.height;
+// canvases.chart = {};
+// canvases.chart.canvas = document.getElementById('graph');
+// canvases.chart.context = canvases.chart.canvas.getContext('2d');
+// canvases.chart.canvas.width = canvases.width;
+// canvases.chart.canvas.height = canvases.height;
 
 function detect(type) {
     if (!canvases.running) {
         canvases.running = true;
         startWorker(canvases.wasm.context.getImageData(0, 0, canvases.wasm.canvas.width, canvases.wasm.canvas.height), objType, 'wasm');
-        startWorker(canvases.asm.context.getImageData(0, 0, canvases.asm.canvas.width, canvases.asm.canvas.height), objType, 'asm');
-        startWorker(canvases.js.context.getImageData(0, 0, canvases.js.canvas.width, canvases.js.canvas.height), objType, 'js');
+        // startWorker(canvases.asm.context.getImageData(0, 0, canvases.asm.canvas.width, canvases.asm.canvas.height), objType, 'asm');
+        // startWorker(canvases.js.context.getImageData(0, 0, canvases.js.canvas.width, canvases.js.canvas.height), objType, 'js');
     }
 }
 
@@ -112,7 +113,7 @@ function selectObj(type) {
     return;
 }
 
-function updateCanvas(e, targetCanvas, plot) {
+function updateCanvas(e, targetCanvas) {
     targetCanvas.context.drawImage(video, 0, 0, targetCanvas.canvas.width, targetCanvas.canvas.height);
     targetCanvas.context.strokeStyle = targetCanvas.color;
     targetCanvas.context.lineWidth = 2;
@@ -120,23 +121,23 @@ function updateCanvas(e, targetCanvas, plot) {
     if (fps) {
         targetCanvas.fpsArr.push(fps);
     }
-    if (plot.displayPoints.length > 10) {
-        plot.displayPoints.shift();
-    }
-    if (canvases.js.fpsArr.length === 1 || canvases.asm.fpsArr.length === 2  || canvases.wasm.fpsArr.length === 4 ) {
-        targetCanvas.context.fps = Math.round((targetCanvas.fpsArr.reduce((a, b) => a + b) / targetCanvas.fpsArr.length) * 100) / 100;
-        if ( targetCanvas.context.fps > myChart.controller.options.scales.yAxes[0].ticks.max) {
-            myChart.controller.options.scales.yAxes[0].ticks.max =  targetCanvas.context.fps;
-        }
-        plot.displayPoints.push(targetCanvas.context.fps)
-        targetCanvas.fpsArr = [];
-    }
-    myChart.update();
+    // if (plot.displayPoints.length > 10) {
+    //     plot.displayPoints.shift();
+    // }
+    // if (canvases.js.fpsArr.length === 1 || canvases.asm.fpsArr.length === 2  || canvases.wasm.fpsArr.length === 4 ) {
+    //     targetCanvas.context.fps = Math.round((targetCanvas.fpsArr.reduce((a, b) => a + b) / targetCanvas.fpsArr.length) * 100) / 100;
+    //     if ( targetCanvas.context.fps > myChart.controller.options.scales.yAxes[0].ticks.max) {
+    //         myChart.controller.options.scales.yAxes[0].ticks.max =  targetCanvas.context.fps;
+    //     }
+    //     plot.displayPoints.push(targetCanvas.context.fps)
+    //     targetCanvas.fpsArr = [];
+    // }
+    // myChart.update();
     targetCanvas.context.fillStyle = 'rgba(255,255,255,.5)';
-    targetCanvas.context.fillRect(0, 0, 90, 30)
+    // targetCanvas.context.fillRect(0, 0, 90, 30)
     targetCanvas.context.font = "normal 14pt Arial";
     targetCanvas.context.fillStyle = targetCanvas.color;
-    targetCanvas.context.fillText(targetCanvas.context.fps + " fps", 5, 20);
+    // targetCanvas.context.fillText(targetCanvas.context.fps + " fps", 5, 20);
     targetCanvas.lastTime = targetCanvas.startTime;
     for (let i = 0; i < e.data.features.length; i++) {
         let rect = e.data.features[i];
@@ -154,7 +155,7 @@ wasmWorker.onmessage = function (e) {
         }
     }
     else {
-        updateCanvas(e, canvases.wasm, wasmGraph);
+        updateCanvas(e, canvases.wasm);
         requestAnimationFrame((wasmTime) => {
             canvases.wasm.startTime = wasmTime;
             startWorker(canvases.wasm.context.getImageData(0, 0, canvases.wasm.canvas.width, canvases.wasm.canvas.height), objType, 'wasm')
@@ -172,7 +173,7 @@ asmWorker.onmessage = function (e) {
         }
     }
     else {
-        updateCanvas(e, canvases.asm, asmGraph);
+        updateCanvas(e, canvases.asm);
         requestAnimationFrame((asmTime) => {
             canvases.asm.startTime = asmTime;
             startWorker(canvases.asm.context.getImageData(0, 0, canvases.asm.canvas.width, canvases.asm.canvas.height), objType, 'asm')
@@ -181,11 +182,11 @@ asmWorker.onmessage = function (e) {
 }
 
 jsWorker.onmessage = function (e) {
-    updateCanvas(e, canvases.js, jsGraph);
-    requestAnimationFrame((jsTime) => {
-        canvases.js.startTime = jsTime;
-        startWorker(canvases.js.context.getImageData(0, 0, canvases.js.canvas.width, canvases.js.canvas.height), objType, 'js')
-    });
+    // updateCanvas(e, canvases.js, jsGraph);
+    // requestAnimationFrame((jsTime) => {
+    //     canvases.js.startTime = jsTime;
+    //     startWorker(canvases.js.context.getImageData(0, 0, canvases.js.canvas.width, canvases.js.canvas.height), objType, 'js')
+    // });
 }
 
 window.onerror = function (event) {
@@ -196,111 +197,111 @@ Chart.defaults.global.tooltips.enabled = false;
 Chart.defaults.global.scalesLineColor = "rgba(0,0,0,0)";
 Chart.defaults.global.defaultFontFamily = '"Palatino Linotype", "Book Antiqua", Palatino, serif';
 
-const graphEle = document.getElementById("graph");
-graphEle.height = 80;
-const ctx = graphEle.getContext('2d');
+// const graphEle = document.getElementById("graph");
+// graphEle.height = 80;
+// const ctx = graphEle.getContext('2d');
 
-Chart.pluginService.register({
-    beforeDraw: function (chart, easing) {
-        if (chart.config.options.chartArea && chart.config.options.chartArea.backgroundColor) {
-            var helpers = Chart.helpers;
-            var ctx = chart.chart.ctx;
-            var chartArea = chart.chartArea;
+// Chart.pluginService.register({
+//     beforeDraw: function (chart, easing) {
+//         if (chart.config.options.chartArea && chart.config.options.chartArea.backgroundColor) {
+//             var helpers = Chart.helpers;
+//             var ctx = chart.chart.ctx;
+//             var chartArea = chart.chartArea;
 
-            ctx.save();
-            ctx.fillStyle = chart.config.options.chartArea.backgroundColor;
-            ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-        }
-    }
-});
+//             ctx.save();
+//             ctx.fillStyle = chart.config.options.chartArea.backgroundColor;
+//             ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+//         }
+//     }
+// });
 
-let myChart = Chart.Line(ctx, {
-    responsive: true,
-    options: {
-        legend: {
-            display: true,
-            labels: {
-                fontColor: "#F16327"
-            }
-        },
-        chartArea: {
-            backgroundColor: "#D1D1D1"
-        },
-        elements: {
-            point: {
-                radius: 0
-            }
-        },
-        animation: false,
-        scales: {
-            fontColor: "#FFFFFF",
-            xAxes: [{
-                gridLines: {
-                    display: false,
-                    color: "rgba(0,0,0,1)"
-                },
-                ticks: {
-                    display:false,
-                    fontColor: "#F16327"
-                },
-                display: true,
-                scaleLabel: {
-                    display: true,
-                    labelString: "Inputs",
-                    fontColor: "#F16327"
-                },
-            }],
-            yAxes: [
-                {
-                    display: true,
-                    ticks: {
-                        min: 0,
-                        max: 30,
-                        stepSize: 10,
-                        fontColor: "#F16327"
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: "FPS",
-                        fontColor: "#F16327"
-                    },
-                    gridLines: {
-                        color: "rgba(0,0,0,1)",
-                    }
-                }],
-        },
-        labels: {
-            fontColor: "blue"
-        }
-    },
-    data: {
-        labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        datasets: [
-            {
-                fill: false,
-                label: "wasm",
-                borderColor: "rgba(255,0,0,1)",
-                backgroundColor: "rgba(255,0,0,1)",
-                data: []
-            },
-            {
-                fill: false,
-                label: "asm",
-                borderColor: "rgba(0,191,255,1)",
-                backgroundColor: "rgba(0,191,255,1)",
-                data: []
-            },
-            {
-                fill: false,
-                label: "js",
-                borderColor: "rgba(0,255,0,1)",
-                backgroundColor: "rgba(0,255,0,1)",
-                data: []
-            }
-        ]
-    }
-})
+// let myChart = Chart.Line(ctx, {
+//     responsive: true,
+//     options: {
+//         legend: {
+//             display: true,
+//             labels: {
+//                 fontColor: "#F16327"
+//             }
+//         },
+//         chartArea: {
+//             backgroundColor: "#D1D1D1"
+//         },
+//         elements: {
+//             point: {
+//                 radius: 0
+//             }
+//         },
+//         animation: false,
+//         scales: {
+//             fontColor: "#FFFFFF",
+//             xAxes: [{
+//                 gridLines: {
+//                     display: false,
+//                     color: "rgba(0,0,0,1)"
+//                 },
+//                 ticks: {
+//                     display:false,
+//                     fontColor: "#F16327"
+//                 },
+//                 display: true,
+//                 scaleLabel: {
+//                     display: true,
+//                     labelString: "Inputs",
+//                     fontColor: "#F16327"
+//                 },
+//             }],
+//             yAxes: [
+//                 {
+//                     display: true,
+//                     ticks: {
+//                         min: 0,
+//                         max: 30,
+//                         stepSize: 10,
+//                         fontColor: "#F16327"
+//                     },
+//                     scaleLabel: {
+//                         display: true,
+//                         labelString: "FPS",
+//                         fontColor: "#F16327"
+//                     },
+//                     gridLines: {
+//                         color: "rgba(0,0,0,1)",
+//                     }
+//                 }],
+//         },
+//         labels: {
+//             fontColor: "blue"
+//         }
+//     },
+//     data: {
+//         labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+//         datasets: [
+//             {
+//                 fill: false,
+//                 label: "wasm",
+//                 borderColor: "rgba(255,0,0,1)",
+//                 backgroundColor: "rgba(255,0,0,1)",
+//                 data: []
+//             },
+//             {
+//                 fill: false,
+//                 label: "asm",
+//                 borderColor: "rgba(0,191,255,1)",
+//                 backgroundColor: "rgba(0,191,255,1)",
+//                 data: []
+//             },
+//             {
+//                 fill: false,
+//                 label: "js",
+//                 borderColor: "rgba(0,255,0,1)",
+//                 backgroundColor: "rgba(0,255,0,1)",
+//                 data: []
+//             }
+//         ]
+//     }
+// })
 
-let wasmGraph = { displayPoints: myChart.config.data.datasets[0].data, holder: [] };
-let asmGraph = { displayPoints: myChart.config.data.datasets[1].data, holder: [] };
-let jsGraph = { displayPoints: myChart.config.data.datasets[2].data, holder: [] };
+// let wasmGraph = { displayPoints: myChart.config.data.datasets[0].data, holder: [] };
+// let asmGraph = { displayPoints: myChart.config.data.datasets[1].data, holder: [] };
+// let jsGraph = { displayPoints: myChart.config.data.datasets[2].data, holder: [] };
