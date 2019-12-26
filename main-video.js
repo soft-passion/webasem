@@ -4,7 +4,7 @@ let jsWorker = new Worker('js-worker.js');
 
 let video = document.querySelector("#videoElement");
 let objType = 'faceDetect';
-
+var track = null;
 
 // check for getUserMedia support
 // navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
@@ -13,6 +13,7 @@ let objType = 'faceDetect';
     // get webcam feed if available 
     // navigator.getUserMedia({ video: true }, handleVideo, () => console.log('error with webcam'));
     // setTimeout(detect, 8000)
+function cameraStart() {
     var constraints = { video: { facingMode: "user" }, audio: false };
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
         track = stream.getTracks()[0];
@@ -21,11 +22,10 @@ let objType = 'faceDetect';
     .catch(function(error) {
         console.error("Oops. Something is broken.", error);
     });
+}
 // }
 
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('dom loaded')
-}, false);
+document.addEventListener('DOMContentLoaded', cameraStart, false);
 
 function handleVideo(stream) {
     console.log('load webcam')
